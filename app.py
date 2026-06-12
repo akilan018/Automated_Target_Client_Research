@@ -20,19 +20,21 @@ from src.supabase_db import (
 from src.pdf_generator import generate_report
 from src.pdf_parser import parse_pdf_for_leads
 
+# ── Logging ─────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(name)-24s  %(levelname)-7s  %(message)s",
 )
 
+# ── Page Config ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="PerfectParser Lead Intelligence",
+    page_title="AUTOMATED TARGET CLIENT RESEARCHER",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-
+# ── Custom CSS ──────────────────────────────────────────────
 st.markdown("""
 <style>
 /* ── Import Google Font ─────────────────────────────────── */
@@ -142,9 +144,10 @@ div[data-testid="stMetric"]:hover {
 """, unsafe_allow_html=True)
 
 
+# ── Sidebar ─────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🔍 PerfectParser")
-    st.markdown("**Lead Intelligence Platform**")
+    st.markdown("### 🔍 CLIENT RESEARCHER")
+    st.markdown("**AUTOMATED TARGET SYSTEM**")
     st.divider()
 
     page = st.radio(
@@ -161,20 +164,23 @@ with st.sidebar:
     )
 
     st.divider()
-    st.caption("© 2026 PerfectParser")
+    st.caption("© 2026 AUTOMATED TARGET CLIENT RESEARCHER")
 
 
-
+# ── Helper: safe column display ─────────────────────────────
 def _safe_cols(df: pd.DataFrame, desired: list[str]) -> list[str]:
     """Return only the columns that exist in the DataFrame."""
     return [c for c in desired if c in df.columns]
 
 
+# ════════════════════════════════════════════════════════════
+# PAGE: Dashboard
+# ════════════════════════════════════════════════════════════
 if page == "📊 Dashboard":
     st.markdown('<p class="main-header">Lead Intelligence Dashboard</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Real-time overview of your lead pipeline</p>', unsafe_allow_html=True)
 
-
+    # Fetch all leads for stats
     all_leads = get_leads()
 
     if all_leads:
@@ -184,6 +190,7 @@ if page == "📊 Dashboard":
         low = sum(1 for l in all_leads if l.get("lead_score") == "Low")
         unscored = total - high - medium - low
 
+        # Metric cards
         col1, col2, col3, col4, col5 = st.columns(5)
         col1.metric("Total Leads", total)
         col2.metric("🟢 High Score", high)
@@ -195,7 +202,7 @@ if page == "📊 Dashboard":
 
         df = pd.DataFrame(all_leads)
 
-       
+        # Recent leads
         st.subheader("🕐 Recent Leads")
         recent_cols = _safe_cols(df, ["company_name", "industry", "lead_score", "source_platform", "website", "collected_at"])
         st.dataframe(df.head(10)[recent_cols], use_container_width=True, hide_index=True)
@@ -206,11 +213,15 @@ if page == "📊 Dashboard":
             icon="ℹ️",
         )
 
+
+# ════════════════════════════════════════════════════════════
+# PAGE: Collect Leads (Multi-Platform)
+# ════════════════════════════════════════════════════════════
 elif page == "🌐 Collect Leads":
     st.markdown('<p class="main-header">Collect Leads</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Discover potential customers from multiple platforms</p>', unsafe_allow_html=True)
 
-
+    # ── Industry & Settings ─────────────────────────────────
     col1, col2 = st.columns([2, 1])
 
     with col1:
@@ -223,11 +234,11 @@ elif page == "🌐 Collect Leads":
     with col2:
         max_leads = st.slider("Max leads", min_value=5, max_value=30, value=15)
 
-
+    # ── Platform Selection ──────────────────────────────────
     st.subheader("🌍 Select Platforms")
     st.caption("Choose which platforms to search for leads")
 
- 
+    # Build platform checkboxes in a grid
     platform_cols = st.columns(len(PLATFORM_NAMES))
     selected_platforms: list[str] = []
 
@@ -244,7 +255,7 @@ elif page == "🌐 Collect Leads":
 
     st.divider()
 
-
+    # ── Collect Button ──────────────────────────────────────
     if not selected_platforms:
         st.warning("Please select at least one platform.")
     else:
@@ -264,14 +275,14 @@ elif page == "🌐 Collect Leads":
             else:
                 st.warning("No leads found. Try different platforms or industry.")
 
-
+    # ── Display collected leads ─────────────────────────────
     if "collected_leads" in st.session_state and st.session_state["collected_leads"]:
         leads = st.session_state["collected_leads"]
         df = pd.DataFrame(leads)
 
         st.subheader(f"📋 Collected Leads ({len(leads)})")
 
-
+        # Show platform breakdown
         if "source_platform" in df.columns:
             platform_counts = df["source_platform"].value_counts()
             pcols = st.columns(len(platform_counts))
@@ -284,7 +295,7 @@ elif page == "🌐 Collect Leads":
         ])
         st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
 
-      
+        # ── Store in Supabase ───────────────────────────────
         st.divider()
         if st.button("💾 Store in Supabase", type="secondary", use_container_width=True):
             with st.spinner("Storing leads in Supabase..."):
@@ -295,6 +306,9 @@ elif page == "🌐 Collect Leads":
                 st.info("No new leads to store (all duplicates or already exist).")
 
 
+# ════════════════════════════════════════════════════════════
+# PAGE: Upload PDF
+# ════════════════════════════════════════════════════════════
 elif page == "📎 Upload PDF":
     st.markdown('<p class="main-header">Upload PDF</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Extract leads from PDF documents using our local parser</p>', unsafe_allow_html=True)
@@ -306,7 +320,7 @@ elif page == "📎 Upload PDF":
     </div>
     """, unsafe_allow_html=True)
 
-
+    # ── File Uploader ───────────────────────────────────────
     uploaded_file = st.file_uploader(
         "Choose a PDF file",
         type=["pdf"],
@@ -314,6 +328,7 @@ elif page == "📎 Upload PDF":
         help="Upload a PDF file containing business/company information",
     )
 
+    # ── Optional Context ────────────────────────────────────
     context = st.text_input(
         "🔍 Additional context (optional)",
         placeholder="e.g. 'Healthcare companies in USA', 'Law firms', 'Tech startups'",
@@ -322,11 +337,11 @@ elif page == "📎 Upload PDF":
 
     st.divider()
 
-
+    # ── Process PDF ─────────────────────────────────────────
     if uploaded_file is not None:
         st.info(f"📄 **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
 
-     
+        # Step 1: Extract text from PDF
         col_step1, col_step2 = st.columns(2)
 
         with col_step1:
@@ -361,6 +376,7 @@ elif page == "📎 Upload PDF":
                 except Exception as exc:
                     st.error(f"❌ Unexpected error: {exc}")
 
+        # Show extracted text preview
         if "pdf_text" in st.session_state and st.session_state["pdf_text"]:
             st.divider()
             st.subheader("📄 Extracted Text Preview")
@@ -372,21 +388,21 @@ elif page == "📎 Upload PDF":
     else:
         st.info("👆 Upload a PDF file to get started.")
 
-
+    # ── Display extracted leads ─────────────────────────────
     if "pdf_leads" in st.session_state and st.session_state["pdf_leads"]:
         leads = st.session_state["pdf_leads"]
         df = pd.DataFrame(leads)
 
         st.subheader(f"📋 Extracted Leads ({len(leads)})")
 
-       
+        # Show a summary
         if "industry" in df.columns:
             industries = df["industry"].value_counts()
             ind_cols = st.columns(min(len(industries), 5))
             for i, (ind, cnt) in enumerate(industries.head(5).items()):
                 ind_cols[i].metric(ind, cnt)
 
-      
+        # Full table with all enriched fields
         display_cols = _safe_cols(df, [
             "company_name", "website", "industry", "company_size",
             "contact_person", "job_title", "email",
@@ -394,7 +410,7 @@ elif page == "📎 Upload PDF":
         ])
         st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
 
-
+        # ── Actions ─────────────────────────────────────────
         st.divider()
         action_col1, action_col2 = st.columns(2)
 
@@ -409,16 +425,19 @@ elif page == "📎 Upload PDF":
 
         with action_col2:
             if st.button("🤖 Score Leads", key="pdf_analyze", type="secondary", use_container_width=True):
-        
+                # Move PDF leads to collected_leads for the Analyze page
                 st.session_state["collected_leads"] = leads
                 st.success("✅ Leads ready for analysis! Go to **Analyze Leads** page.")
 
 
+# ════════════════════════════════════════════════════════════
+# PAGE: Analyze Leads
+# ════════════════════════════════════════════════════════════
 elif page == "🤖 Analyze Leads":
     st.markdown('<p class="main-header">Score Leads</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Use our internal algorithm to score and evaluate each lead</p>', unsafe_allow_html=True)
 
-
+    # Determine the source of leads to analyze
     source_option = st.radio(
         "Choose leads to analyze:",
         options=["Recently collected leads (session)", "All unscored leads from Supabase"],
@@ -432,6 +451,7 @@ elif page == "🤖 Analyze Leads":
         if not leads_to_analyze:
             st.info("No recently collected leads in this session. Collect some leads first or upload a PDF!")
     else:
+        # Load unscored leads from Supabase
         all_db_leads = get_leads()
         leads_to_analyze = [
             l for l in all_db_leads
@@ -447,7 +467,7 @@ elif page == "🤖 Analyze Leads":
             progress_bar = st.progress(0)
             status_text = st.empty()
 
-            
+            # Analyze leads
             analyzed = []
             for i, lead in enumerate(leads_to_analyze):
                 status_text.text(f"Analyzing {i+1}/{len(leads_to_analyze)}: {lead.get('company_name', 'Unknown')}...")
@@ -456,7 +476,7 @@ elif page == "🤖 Analyze Leads":
                 result = analyze_lead(lead)
                 analyzed.append(result)
 
-               
+                # Small delay for rate limiting
                 if i < len(leads_to_analyze) - 1:
                     time.sleep(1.0)
 
@@ -465,14 +485,14 @@ elif page == "🤖 Analyze Leads":
             status_text.empty()
             st.success(f"✅ Analysis complete for **{len(analyzed)}** leads!")
 
-  
+    # ── Display analyzed results ────────────────────────────
     if "analyzed_leads" in st.session_state and st.session_state["analyzed_leads"]:
         analyzed = st.session_state["analyzed_leads"]
         df = pd.DataFrame(analyzed)
 
         st.subheader("🎯 Analysis Results")
 
-     
+        # Show score summary
         if "lead_score" in df.columns:
             score_cols = st.columns(3)
             high = sum(1 for l in analyzed if l.get("lead_score") == "High")
@@ -488,7 +508,7 @@ elif page == "🤖 Analyze Leads":
         ])
         st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
 
-    
+        # ── Update Supabase with analysis results ───────────
         st.divider()
         if st.button("💾 Save Analysis to Supabase", type="secondary", use_container_width=True):
             with st.spinner("Updating lead scores in Supabase..."):
@@ -506,12 +526,14 @@ elif page == "🤖 Analyze Leads":
             st.success(f"✅ Updated **{updated}** leads in Supabase!")
 
 
-
+# ════════════════════════════════════════════════════════════
+# PAGE: Stored Leads
+# ════════════════════════════════════════════════════════════
 elif page == "💾 Stored Leads":
     st.markdown('<p class="main-header">Stored Leads</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Browse and filter all leads in your Supabase database</p>', unsafe_allow_html=True)
 
-   
+    # ── Filters ─────────────────────────────────────────────
     filter_col1, filter_col2 = st.columns(2)
 
     with filter_col1:
@@ -532,7 +554,7 @@ elif page == "💾 Stored Leads":
 
     st.divider()
 
- 
+    # ── Load & Display ──────────────────────────────────────
     if st.button("🔄 Load Leads", type="primary", use_container_width=True):
         with st.spinner("Fetching leads from Supabase..."):
             leads = get_leads(
@@ -547,11 +569,11 @@ elif page == "💾 Stored Leads":
             st.session_state["stored_leads"] = []
             st.info("No leads match the selected filters.")
 
-
+    # Display stored leads
     if "stored_leads" in st.session_state and st.session_state["stored_leads"]:
         df = pd.DataFrame(st.session_state["stored_leads"])
 
-      
+        # Summary metrics
         total = len(df)
         col1, col2, col3 = st.columns(3)
         col1.metric("Total Results", total)
@@ -559,6 +581,7 @@ elif page == "💾 Stored Leads":
             col2.metric("🟢 High Score", sum(df["lead_score"] == "High"))
             col3.metric("🔴 Low Score", sum(df["lead_score"] == "Low"))
 
+        # Full table
         display_cols = _safe_cols(df, [
             "company_name", "website", "industry", "lead_score",
             "ai_reason", "contact_person", "email",
@@ -567,11 +590,14 @@ elif page == "💾 Stored Leads":
         st.dataframe(df[display_cols], use_container_width=True, hide_index=True)
 
 
+# ════════════════════════════════════════════════════════════
+# PAGE: Reports
+# ════════════════════════════════════════════════════════════
 elif page == "📄 Reports":
     st.markdown('<p class="main-header">PDF Reports</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Generate professional lead intelligence reports</p>', unsafe_allow_html=True)
 
-   
+    # Choose data source for the report
     report_source = st.radio(
         "Select leads for the report:",
         options=[
@@ -584,7 +610,7 @@ elif page == "📄 Reports":
     st.divider()
 
     if st.button("📄 Generate PDF Report", type="primary", use_container_width=True):
-     
+        # Gather leads
         if report_source == "All leads from Supabase":
             with st.spinner("Loading leads from Supabase..."):
                 report_leads = get_leads()
@@ -599,6 +625,7 @@ elif page == "📄 Reports":
 
             st.success(f"✅ Report generated with **{len(report_leads)}** leads!")
 
+            # Offer download
             with open(filepath, "rb") as f:
                 st.download_button(
                     label="⬇️ Download PDF Report",
