@@ -1,25 +1,11 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-Lead Analysis Module (Keyword-Based — No API Key Required)
-============================================================
-Scores and evaluates leads using a keyword-based algorithm
-that checks industry fit, company indicators, and document-
-processing need signals. No external API keys needed.
-============================================================
-"""
 
 import re
 import random
 import logging
 from datetime import datetime, timezone
 
-# ── Logger ──────────────────────────────────────────────────
 logger = logging.getLogger(__name__)
 
-# ── Scoring Configuration ───────────────────────────────────
-
-# Industries with HIGH document processing needs
 HIGH_DOC_INDUSTRIES = {
     "healthcare", "legal", "finance", "insurance", "government",
     "banking", "pharmaceutical", "medical", "law", "accounting",
