@@ -1,27 +1,21 @@
-# ============================================================
-# PerfectParser Lead Intelligence Platform — Dependencies
-# ============================================================
-# Install with:  pip install -r requirements.txt
-# ============================================================
 
-# Web framework
+
+
 streamlit>=1.30.0
 
-# Data manipulation
+
 pandas>=2.0.0
 
-# Web scraping
+
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 
-# Database (Supabase)
+
 supabase>=2.0.0
 
-# PDF generation
 reportlab>=4.0.0
 
-# PDF text extraction (for upload feature)
 PyPDF2>=3.0.0
 
-# Environment variable management
+
 python-dotenv>=1.0.0
