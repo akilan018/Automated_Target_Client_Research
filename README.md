@@ -94,7 +94,6 @@ GEMINI_API_KEY=your-gemini-api-key
 
 **Where to get these:**
 - **Supabase URL & Key:** [Supabase Dashboard](https://app.supabase.com) → Your Project → Settings → API
-- **Gemini API Key:** [Google AI Studio](https://aistudio.google.com/apikey)
 
 ### 5. Create the Database Table
 
