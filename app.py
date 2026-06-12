@@ -74,22 +74,21 @@ section[data-testid="stSidebar"] .stRadio label {
 
 /* ── Page Header ─────────────────────────────────────────── */
 .main-header {
-    color: #1e3a5f;
     font-size: 2.4rem;
     font-weight: 800;
     letter-spacing: -0.5px;
     margin-bottom: 0.2rem;
 }
 .sub-header {
-    color: #475569;
+    opacity: 0.7;
     font-size: 1rem;
     margin-bottom: 1.5rem;
 }
 
 /* ── Metric Cards ───────────────────────────────────────── */
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
+    background: rgba(108, 99, 255, 0.05);
+    border: 1px solid rgba(108, 99, 255, 0.1);
     border-radius: 12px;
     padding: 16px 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -123,16 +122,15 @@ div[data-testid="stMetric"]:hover {
     border-radius: 16px;
     padding: 2rem;
     text-align: center;
-    background: #eff6ff;
-    color: #1e3a5f;
+    background: rgba(59, 130, 246, 0.05);
     font-size: 1rem;
     margin-bottom: 1rem;
 }
 
 /* ── Platform Cards ─────────────────────────────────────── */
 .platform-info {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: rgba(108, 99, 255, 0.05);
+    border: 1px solid rgba(108, 99, 255, 0.1);
     border-radius: 10px;
     padding: 12px 16px;
     margin: 4px 0;
