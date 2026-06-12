@@ -1,4 +1,4 @@
-# 🔍 PerfectParser Lead Intelligence Platform
+# 🔍 AUTOMATED TARGET CLIENT RESEARCHER
 
 A production-ready lead intelligence system that identifies potential customers for **PerfectParser** — an AI-powered document processing tool. Built with Python, Streamlit, Supabase, and Google Gemini AI.
 
