@@ -1,3 +1,16 @@
+"""
+============================================================
+AUTOMATED TARGET CLIENT RESEARCHER
+Main Streamlit Application
+============================================================
+A modern dashboard for collecting, analyzing, storing, and
+reporting on potential leads for PerfectParser — an AI-powered
+document processing tool.
+
+Run with:  streamlit run app.py
+============================================================
+"""
+
 import time
 import logging
 import streamlit as st
