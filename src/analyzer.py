@@ -1,19 +1,3 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-Lead Analysis & Scoring Module
-============================================================
-Scores and evaluates leads using:
-  - NVIDIA NIM (Llama-3.3-70B) when NVIDIA_API_KEY is set
-    → Real AI reasoning about each company's document needs
-  - Keyword-based fallback when no API key is available
-    → Fast, offline scoring using domain signals
-
-The NVIDIA path produces much more accurate, company-specific
-explanations compared to the generic keyword approach.
-============================================================
-"""
-
 import os
 import re
 import json
