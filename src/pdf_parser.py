@@ -1,14 +1,3 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-PDF Parser Module (Regex/Heuristic Based — No API Key Required)
-============================================================
-Extracts text from uploaded PDF files and uses regex/heuristics
-to identify potential leads (company names, contacts, emails)
-from the document content.
-============================================================
-"""
-
 import re
 import logging
 from datetime import datetime, timezone
