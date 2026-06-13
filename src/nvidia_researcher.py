@@ -1,16 +1,3 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-NVIDIA NIM AI Researcher Module
-============================================================
-Uses NVIDIA's Llama-3.3-70B (via OpenAI-compatible NIM API)
-to intelligently identify REAL companies that need document
-processing solutions. Researches publicly known companies,
-verifies their existence via web, and scores their likelihood
-of needing PerfectParser.
-============================================================
-"""
-
 import os
 import json
 import logging
