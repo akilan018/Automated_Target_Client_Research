@@ -1,14 +1,3 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-Supabase Database Module
-============================================================
-Handles all CRUD operations against the Supabase 'leads' table.
-Supports insert with duplicate avoidance, filtered reads,
-analysis updates, and distinct-value lookups for dropdowns.
-============================================================
-"""
-
 import os
 import logging
 from typing import Optional
