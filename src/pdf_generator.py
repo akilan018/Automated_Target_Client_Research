@@ -1,14 +1,3 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-PDF Report Generator
-============================================================
-Generates professional, branded PDF reports using ReportLab.
-Each report includes a header, summary statistics, and a
-detailed table of all leads with their AI analysis.
-============================================================
-"""
-
 import os
 import logging
 from datetime import datetime, timezone
