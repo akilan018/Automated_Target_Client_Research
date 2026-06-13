@@ -28,7 +28,11 @@ logger = logging.getLogger(__name__)
 def _has_nvidia_key() -> bool:
     from dotenv import load_dotenv
     load_dotenv()
-    return bool(os.getenv("NVIDIA_API_KEY", "").strip())
+    try:
+        from src.nvidia_researcher import _get_active_keys
+    except ImportError:
+        from nvidia_researcher import _get_active_keys  # type: ignore
+    return len(_get_active_keys()) > 0
 
 
 # ── Keyword-Based Scoring (Fallback) ─────────────────────────
@@ -129,22 +133,47 @@ def _keyword_score(lead: dict) -> dict:
     else:
         lead_score = "Low"
 
-    # Build reason
-    reasons = []
-    if ind_reason:
-        reasons.append(ind_reason + ".")
+    # Build a descriptive, dynamic buying rationale based on score
+    industry_display = lead.get("industry") or "target"
+    size_display = lead.get("company_size") or "unknown size"
+    
+    # Identify what kind of document types are relevant
     if high_matches:
-        reasons.append(f"Key signals: {', '.join(high_matches[:3])}.")
-    if size_reason:
-        reasons.append(size_reason + ".")
-    if is_vague:
-        reasons.append("Generic company name — document pain point unclear.")
-    if not reasons:
-        reasons.append("Standard business profile — limited document processing evidence.")
+        doc_signals = f"document operations involving {', '.join(high_matches[:3])}"
+    else:
+        doc_signals = "manual document and data entry operations"
+
+    if lead_score == "High":
+        rationale = (
+            f"This High-score {industry_display} enterprise/company is a prime candidate for PerfectParser "
+            f"due to intensive {doc_signals}. They would buy PerfectParser to eliminate expensive, "
+            f"error-prone manual data extraction, accelerate document processing cycles, and achieve "
+            f"immediate ROI by automating their high-volume workflows."
+        )
+    elif lead_score == "Medium":
+        rationale = (
+            f"Operating as a {size_display.lower()} firm in the {industry_display} sector, this company likely "
+            f"has moderate manual workflow needs ({doc_signals}). They would buy PerfectParser to reduce "
+            f"administrative overhead and streamline data ingestion, though the exact ROI will depend on their "
+            f"actual daily document volumes."
+        )
+    else:
+        # Low score
+        if is_vague:
+            rationale = (
+                f"This company has a generic profile with unclear document pain points. They would only buy "
+                f"PerfectParser to address isolated backend automation needs, resulting in a low immediate ROI."
+            )
+        else:
+            rationale = (
+                f"With limited indicators of intensive document processing, this {industry_display} company is a "
+                f"low-priority lead. They would buy PerfectParser only for occasional document ingestion or "
+                f"minor digitizing tasks, as they lack high-volume manual paperwork bottlenecks."
+            )
 
     result = dict(lead)
     result["lead_score"] = lead_score
-    result["ai_reason"] = " ".join(reasons)
+    result["ai_reason"] = rationale
     return result
 
 
@@ -153,14 +182,10 @@ def _keyword_score(lead: dict) -> dict:
 def _nvidia_score(lead: dict) -> dict:
     """Use NVIDIA Llama-3.3-70B for intelligent lead scoring."""
     try:
-        try:
-            from src.nvidia_researcher import score_lead_with_ai
-        except ImportError:
-            from nvidia_researcher import score_lead_with_ai  # type: ignore
-        return score_lead_with_ai(lead)
-    except Exception as exc:
-        logger.warning("NVIDIA scoring error for %s: %s", lead.get("company_name"), exc)
-        return _keyword_score(lead)
+        from src.nvidia_researcher import score_lead_with_ai
+    except ImportError:
+        from nvidia_researcher import score_lead_with_ai  # type: ignore
+    return score_lead_with_ai(lead)
 
 
 # ── Public API ────────────────────────────────────────────────
@@ -188,8 +213,7 @@ def analyze_lead(lead: dict) -> dict:
         logger.info("Scoring '%s' with NVIDIA Llama-3.3-70B", company)
         result = _nvidia_score(lead)
     else:
-        logger.info("Scoring '%s' with keyword algorithm (no NVIDIA key)", company)
-        result = _keyword_score(lead)
+        raise ValueError("No active NVIDIA API keys configured in .env file. Lead scoring requires an active NVIDIA API key.")
 
     logger.info(
         "Lead scored: '%s' → %s",
