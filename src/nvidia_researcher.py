@@ -523,6 +523,7 @@ HIGH score — Only if ALL of these are true:
   ✓ Company is mid-to-large size (100+ employees) — strong ROI case
   ✓ No evidence they already have advanced document automation
   → Example: Hospital billing department, insurance claims processor, large law firm
+  ⚠ EXCLUSION: If the company is primarily a tech/software/SaaS provider, database, online platform, info-tech vendor, or consulting firm (even if they serve Legal, Healthcare, Finance, or Insurance), they CANNOT be High.
 
 MEDIUM score — If SOME but not all HIGH criteria are met:
   ~ Processes documents but volume is moderate or unclear
@@ -532,12 +533,12 @@ MEDIUM score — If SOME but not all HIGH criteria are met:
   → Example: Small accounting firm, regional consulting company, startup healthcare app
 
 LOW score — If ANY of these are true:
-  ✗ Primarily a tech/software company (likely already has automation)
+  ✗ Primarily a tech/software/SaaS company, database, information platform, or consulting firm (likely already automated or doesn't have manual paper bottlenecks)
   ✗ Small startup with few employees and low document volume
   ✗ Company name or reason is vague/generic with no specific document pain point
   ✗ Service company that doesn't process physical/PDF documents
   ✗ Company already described as "digital-first" or "automated"
-  → Example: SaaS startup, tech consulting firm, digital agency, software company
+  → Example: SaaS startup, tech consulting firm, digital agency, software company, database provider like LexisNexis
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 IMPORTANT: In a realistic portfolio, expect ~30% High, ~50% Medium, ~20% Low.
