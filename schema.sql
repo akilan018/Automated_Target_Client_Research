@@ -1,11 +1,3 @@
--- ============================================================
--- PerfectParser Lead Intelligence Platform
--- Database Schema for Supabase (PostgreSQL)
--- ============================================================
-
--- Drop the table if it exists (useful for dev resets)
--- DROP TABLE IF EXISTS leads;
-
 CREATE TABLE leads (
     id              BIGSERIAL PRIMARY KEY,
     company_name    TEXT NOT NULL,
