@@ -1,16 +1,3 @@
-"""
-============================================================
-AUTOMATED TARGET CLIENT RESEARCHER
-Main Streamlit Application
-============================================================
-A modern dashboard for collecting, analyzing, storing, and
-reporting on potential leads for PerfectParser — an AI-powered
-document processing tool.
-
-Run with:  streamlit run app.py
-============================================================
-"""
-
 import os
 import time
 import logging
@@ -361,18 +348,21 @@ elif page == "🌐 Collect Leads":
         platform_labels = ", ".join(selected_platforms)
 
         if st.button("🔍 Collect Leads", type="primary", use_container_width=True):
-            with st.spinner(f"Searching {len(selected_platforms)} platform(s) for {selected_industry} companies..."):
-                leads = collect_leads_multi(
-                    industry=selected_industry,
-                    platforms=selected_platforms,
-                    max_results=max_leads,
-                )
+            try:
+                with st.spinner(f"Searching {len(selected_platforms)} platform(s) for {selected_industry} companies..."):
+                    leads = collect_leads_multi(
+                        industry=selected_industry,
+                        platforms=selected_platforms,
+                        max_results=max_leads,
+                    )
 
-            if leads:
-                st.session_state["collected_leads"] = leads
-                st.success(f"✅ Found **{len(leads)}** leads across {platform_labels}!")
-            else:
-                st.warning("No leads found. Try different platforms or industry.")
+                if leads:
+                    st.session_state["collected_leads"] = leads
+                    st.success(f"✅ Found **{len(leads)}** leads across {platform_labels}!")
+                else:
+                    st.warning("No leads found. Try different platforms or industry.")
+            except Exception as exc:
+                st.error(f"❌ Lead collection failed: {exc}")
 
     if "collected_leads" in st.session_state and st.session_state["collected_leads"]:
         leads = st.session_state["collected_leads"]
@@ -554,17 +544,21 @@ elif page == "🤖 Analyze Leads":
             status_text = st.empty()
 
             analyzed = []
-            for i, lead in enumerate(leads_to_analyze):
-                status_text.text(f"Analyzing {i+1}/{len(leads_to_analyze)}: {lead.get('company_name', 'Unknown')}...")
-                progress_bar.progress((i + 1) / len(leads_to_analyze))
+            try:
+                for i, lead in enumerate(leads_to_analyze):
+                    status_text.text(f"Analyzing {i+1}/{len(leads_to_analyze)}: {lead.get('company_name', 'Unknown')}...")
+                    progress_bar.progress((i + 1) / len(leads_to_analyze))
 
-                result = analyze_lead(lead)
-                analyzed.append(result)
+                    result = analyze_lead(lead)
+                    analyzed.append(result)
 
-            st.session_state["analyzed_leads"] = analyzed
-            progress_bar.empty()
-            status_text.empty()
-            st.success(f"✅ Analysis complete for **{len(analyzed)}** leads!")
+                st.session_state["analyzed_leads"] = analyzed
+                st.success(f"✅ Analysis complete for **{len(analyzed)}** leads!")
+            except Exception as exc:
+                st.error(f"❌ Lead analysis failed: {exc}")
+            finally:
+                progress_bar.empty()
+                status_text.empty()
 
     if "analyzed_leads" in st.session_state and st.session_state["analyzed_leads"]:
         analyzed = st.session_state["analyzed_leads"]
