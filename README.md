@@ -1,4 +1,4 @@
-# 🔍 PerfectParser Lead Intelligence Platform
+# 🔍 Automated-Target-Client Lead Intelligence Platform
 
 A production-ready **automated lead intelligence system** that programmatically identifies potential customers for **[PerfectParser](https://perfectparser.com)** — an AI-powered document processing tool.
 
