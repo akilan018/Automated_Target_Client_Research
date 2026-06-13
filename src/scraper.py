@@ -1,25 +1,5 @@
-"""
-============================================================
-PerfectParser Lead Intelligence Platform
-Multi-Platform Lead Collection Module
-============================================================
-Collects REAL potential leads from multiple public sources:
 
-  Mode 1 — AI-Powered (NVIDIA NIM):
-    Uses Llama-3.3-70B to identify real companies by name,
-    then verifies them via web search. Produces high-quality,
-    verifiable leads.
 
-  Mode 2 — Web Scraping (Fallback):
-    Scrapes DuckDuckGo search results scoped to:
-    - LinkedIn company pages
-    - Reddit business mentions
-    - Public business directories
-    - Company websites
-
-All collection is fully programmatic — no manual copy-paste.
-============================================================
-"""
 
 import re
 import time
@@ -384,10 +364,10 @@ def collect_leads_multi(
     if ai_platform_key in platforms:
         try:
             try:
-                from src.nvidia_researcher import research_leads_with_ai, NVIDIA_API_KEY as NV_KEY
+                from src.nvidia_researcher import research_leads_with_ai, _get_active_keys
             except ImportError:
-                from nvidia_researcher import research_leads_with_ai, NVIDIA_API_KEY as NV_KEY  # type: ignore
-            if NV_KEY:
+                from nvidia_researcher import research_leads_with_ai, _get_active_keys  # type: ignore
+            if _get_active_keys():
                 logger.info("Using NVIDIA AI Research for %s", industry)
                 ai_leads = research_leads_with_ai(
                     industry=industry,
@@ -407,11 +387,13 @@ def collect_leads_multi(
                     if len(leads) >= max_results:
                         break
             else:
-                logger.info("NVIDIA_API_KEY not set, skipping AI research")
-        except ImportError:
-            logger.warning("nvidia_researcher not available")
+                raise ValueError("No active NVIDIA API keys configured in .env file. AI lead generation requires an active NVIDIA API key.")
+        except ImportError as exc:
+            logger.error("nvidia_researcher not available: %s", exc)
+            raise exc
         except Exception as exc:
             logger.error("NVIDIA AI research error: %s", exc)
+            raise exc
 
     # ── Web scraping for remaining platforms ─────────────────
     web_platforms = [p for p in platforms if p != ai_platform_key]
@@ -470,13 +452,10 @@ def collect_leads_multi(
     scraped_leads = [l for l in leads if l.get("source_platform") != "NVIDIA AI Research"]
     if scraped_leads:
         try:
-            try:
-                from src.nvidia_researcher import enrich_scraped_leads_with_ai
-            except ImportError:
-                from nvidia_researcher import enrich_scraped_leads_with_ai  # type: ignore
-            enrich_scraped_leads_with_ai(scraped_leads, industry)
-        except Exception as exc:
-            logger.warning("Failed to enrich scraped leads: %s", exc)
+            from src.nvidia_researcher import enrich_scraped_leads_with_ai
+        except ImportError:
+            from nvidia_researcher import enrich_scraped_leads_with_ai  # type: ignore
+        enrich_scraped_leads_with_ai(scraped_leads, industry)
 
     logger.info(
         "Collected %d leads for '%s' from %d platform(s)",
