@@ -97,7 +97,7 @@ def _call_nvidia_llm(messages: list[dict], temperature: float = 0.3, max_tokens:
                 f"{NVIDIA_BASE_URL}/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=30,  # fail fast on stuck keys
+                timeout=60,  # tolerates slower responses from NVIDIA NIM servers
             )
             response.raise_for_status()
             
@@ -411,9 +411,11 @@ def enrich_scraped_leads_with_ai(leads: list[dict], industry: str) -> list[dict]
     company sizes, emails, profile URLs, and document-specific reasons.
     Extracts the actual real company name from search headline strings.
     """
-    keys = _get_active_keys()
-    if not leads or not keys:
+    if not leads:
         return leads
+    keys = _get_active_keys()
+    if not keys:
+        raise ValueError("No active NVIDIA API keys configured in .env file. Lead enrichment requires an active NVIDIA API key.")
 
     logger.info("Enriching %d web-scraped leads with NVIDIA AI", len(leads))
     
@@ -520,8 +522,7 @@ def score_lead_with_ai(lead: dict) -> dict:
     """
     keys = _get_active_keys()
     if not keys:
-        logger.warning("No NVIDIA API keys configured — using keyword fallback")
-        return lead
+        raise ValueError("No active NVIDIA API keys configured in .env file. Lead scoring requires an active NVIDIA API key.")
 
     system_msg = """You are a strict, critical B2B sales analyst for PerfectParser — an AI document processing tool that extracts data from PDFs, invoices, contracts, and records.
 
@@ -572,7 +573,7 @@ Based on your assessment, respond with this JSON structure:
   "lead_score": "High|Medium|Low",
   "estimated_daily_documents": "e.g. 500+/day or 50/day",
   "manual_processing_evidence": "brief evidence for or against manual processing",
-  "ai_reason": "Exactly two sentences. The first sentence must explain the score based on their specific industry, size, and document types. The second sentence must explicitly state the estimated document volume, manual processing pain point, and why PerfectParser represents a perfect ROI."
+  "ai_reason": "Exactly two sentences. The first sentence must explain the score based on their specific industry, size, and document types. The second sentence must explicitly state the estimated document volume, the manual processing pain point, and the specific reason why this company would buy PerfectParser (e.g., to eliminate data entry bottlenecks, reduce administrative overhead, or scale operational capacity)."
 }}"""
 
     try:
