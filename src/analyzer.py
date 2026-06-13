@@ -75,6 +75,11 @@ def _keyword_score(lead: dict) -> dict:
                      "management", "systems", "technologies", "tech", "digital"]
     is_vague = sum(1 for v in vague_signals if v in company_name) >= 2
 
+    # Exclusion/Penalty: Tech, SaaS, databases, software, or analytics providers should not get high scores
+    tech_keywords = ["software", "saas", "digital", "platform", "online", "database", "analytics", "app", "tech", "technology"]
+    is_tech = any(tk in company_name for tk in tech_keywords) or \
+              any(tk in lead.get("reason", "").lower() for tk in ["software company", "saas platform", "database provider", "digital analytics", "software platform"])
+
     # Industry score — base points only, not enough alone for High
     industry = lead.get("industry", "").lower()
     ind_score = 0
@@ -110,9 +115,9 @@ def _keyword_score(lead: dict) -> dict:
     total = ind_score + kw_score + size_score
 
     # Stricter thresholds (was >=5 High, >=3 Medium)
-    if total >= 7 and not is_vague:
+    if total >= 7 and not is_vague and not is_tech:
         lead_score = "High"
-    elif total >= 4:
+    elif total >= 4 and not is_tech:
         lead_score = "Medium"
     else:
         lead_score = "Low"
